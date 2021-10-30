@@ -1,0 +1,183 @@
+<html>
+    <head>
+        <script src="jsPsych/jspsych.js"></script>
+        <link href="jsPsych/css/jspsych.css" rel="stylesheet" type="text/css">
+        <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
+        <script src="jsPsych/plugins/jspsych-html-button-response.js"></script>
+        <script src="jspsychplugins/jspsych-image-keyboard-response.js"></script>
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.0.0/js/anychart-base.min.js"></script>-->
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    </head>
+    <body>
+        <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+    
+    </body>
+    <script>
+        p_id = prompt("Please enter your name");
+        rowdaata = []
+        chartdata  = {}
+        var trials = []
+        var correct_trials = []
+        var accuracy = []
+        // Standard definitions for stimuli
+        
+                                           
+       
+        function construct_trial(length){
+            var standard_stim = "<div class:'std' ><svg height='120' width='50'>"+
+                     "<line x1='15' y1='35' x2='25' y2='50' style='stroke:rgb(0,0,0);stroke-width:2.5'/>"+
+                    "<line x1='35' y1='35' x2='25' y2='50' style='stroke:rgb(0,0,0);stroke-width:2.5' />"+
+                    "<line x1='25' y1='50' x2='25' y2='100' style='stroke:rgb(0,0,0);stroke-width:2.5' /> "+ 
+                    " <line x1='15' y1='115' x2='25' y2='100' style='stroke:rgb(0,0,0);stroke-width:2.5'/> "+
+                    "<line x1='35' y1='115' x2='25' y2='100' style='stroke:rgb(0,0,0);stroke-width:2.5' />"+	
+                                "</svg></div>"
+            var table_j = '</td><td><div></div></td></tr><tr><td><div></div></td><td>'+ 
+                    standard_stim+'</td></tr></table></center><p>which is longer</p>' 
+            var trialsim1 = "<div class:'trl' ><svg height='120' width='50'>"+  
+            "<line x1='25' y1='30' x2='25' y2='"+length+"' style='stroke:rgb(0,0,0);stroke-width:2.5' />	"+
+            "</svg></div>"        
+             return    '<center><table><tr><td>'+trialsim1+table_j
+
+        }    
+        //Experiment code
+        var timeline = []        
+        // welcome
+        var welcome= {
+            type: 'html-button-response',
+            stimulus: 'Welcome to Muller-Lyer Illusion experiment',
+            choices: ['Click here ro continue']
+                        }
+        // instructions
+        var instructions = {
+            type: "html-keyboard-response",
+            stimulus: "<p>One each trial, two vertical lines will appear. The line on the upper left has no wings. " +
+                    "The line on the lower right has outward-drawn wings.</p>"+
+                    "<p> Your task is to choose which line is longer, the one without wings or the one with wings. " +
+                    "There are a total of 130 trials. Each trial only takes a few seconds to complete.</p>"+
+                    "<p> Do not go too fast. At the end of the experiment, we Shall collect your data.</p>" +
+                    "<p>Press any key to begin.</p>"};
+        // trial
+        var fixation = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:40px;">+</div>',
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 500,
+            }
+        
+        var test_stimuli = [
+                            { stimulus: construct_trial('80'),data: {test_part: '1',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('81.5'),data: {test_part: '2',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('83'),data: {test_part: '3',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('84.5'),data: {test_part: '4',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('86'),data: {test_part: '5',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('87.5'),data: {test_part: '6',correct_response: 'Plain line is longer '}},
+                            { stimulus: construct_trial('89'),data: {test_part: '7',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('90.5'),data: {test_part: '8',correct_response: 'Plain line is longer '}},
+                            { stimulus: construct_trial('92'),data: {test_part: '9',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('93.5'),data: {test_part: '10',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('95'),data: {test_part: '11',correct_response: 'Plain line is longer '}},
+                            { stimulus: construct_trial('96.5'),data: {test_part: '12',correct_response: 'Plain line is longer'}},
+                            { stimulus: construct_trial('98'),data: {test_part: '13',correct_response: 'Plain line is longer'}}
+                                            ];   
+        // var test_stimuli = [
+        //                    { stimulus: construct_trial('120'),data: {test_part: '1',correct_response: 'Plain line is longer '}}];     
+         var test_master_trial = {
+              type: "html-button-response",
+              stimulus: jsPsych.timelineVariable('stimulus'),
+              choices: ['Line with wings is longer','Plain line is longer'],
+              data: jsPsych.timelineVariable('data'),
+              on_finish: function(data){
+                //   console.log(typeof(data.button_pressed))
+                //   console.log(jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response))
+                    data.correct = data.button_pressed == 1;
+                                     }
+                        }    
+        var test_procedure = {
+                            timeline: [fixation,test_master_trial],
+                            timeline_variables: test_stimuli,
+                            randomize_order: true   ,
+                            repetitions: 10
+                                } 
+
+     timeline.push(welcome)   
+      // instructions
+     timeline.push(instructions)
+     //trials
+     timeline.push(test_procedure   )   
+     //desription
+     
+     var debrief_block = {
+                type: "html-keyboard-response",
+                 stimulus: function() {
+                     for (i = 0; i < 10; i++) {
+                         flag = i+1
+                         trials[i] = jsPsych.data.get().filter({test_part: flag.toString() });
+                         correct_trials[i] = trials[i].filter({correct: true});
+                         accuracy[i] = Math.round(correct_trials[i].count() / trials[i].count() * 100);
+                         rowdaata.push([i,accuracy[i]])                
+                                                        }   
+                        push_data = p_id+','
+                        push_data = push_data+accuracy.join(",")+"\r\n";
+                                                            
+                        var formData = new FormData();
+                        formData.append("fname", 'muller_iyer.csv'+".csv");
+                        formData.append("data", push_data);                        
+                        var request = new XMLHttpRequest();
+                        request.open('POST', 'action.php', true);            
+                        request.send(formData);
+                        //alert("Thanks! Bye!");
+                return "Thank You, we collected your data, press enter to exit. Appreciation for the participation.";   } };
+     timeline.push(debrief_block)
+
+    jsPsych.init({
+        timeline: timeline,
+        show_progress_bar: true,
+        on_finish: function() {
+             var trace1 = {
+                x: [1, 2, 3, 4,5,6,7,8,9,10],
+                y: accuracy, mode: 'markers',type: 'scatter',   };
+            
+            var data = [trace1];
+            var layout = {
+            title: {
+                text:'Psychometric function for a Muller-Lyer Illusion task',
+                font: {
+                family: 'Courier New, monospace',
+                size: 24
+                },
+                xref: 'paper',
+                x: 0.05,
+            },
+            xaxis: {
+            title: {
+            text: 'Length of Line with wings',
+            font: {
+                family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+            }
+            },
+        },
+        yaxis: {
+            title: {
+            text: 'Proportion of correct detections',
+            font: {
+                family: 'Courier New, monospace',
+                size: 18,
+                color: '#7f7f7f'
+            }
+            }
+        }
+        
+
+                }
+          
+            Plotly.newPlot('jspsych-content', data,layout);     }
+
+    })
+
+   
+    
+    </script>
+</html>
